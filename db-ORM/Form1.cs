@@ -162,5 +162,18 @@ namespace db_ORM
                 }
             }
         }
+
+        private void dgv_numbers_if_inventory_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
+        {
+            if (dgv_numbers_if_inventory.Rows[e.Row.Index].Tag == null)
+                return;
+            using (var db_context = new opendata_context())
+            {
+                var curr_number = (number_of_inventory_in_branch)dgv_numbers_if_inventory.Rows[e.Row.Index].Tag;
+                db_context.number_of_inventory_in_branch.Attach(curr_number);
+                db_context.number_of_inventory_in_branch.Remove(curr_number);
+                db_context.SaveChanges();
+            }
+        }
     }
 }

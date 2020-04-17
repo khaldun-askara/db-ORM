@@ -62,6 +62,7 @@
             this.dgv_numbers_if_inventory.Size = new System.Drawing.Size(1236, 303);
             this.dgv_numbers_if_inventory.TabIndex = 1;
             this.dgv_numbers_if_inventory.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgv_numbers_if_inventory_RowValidating);
+            this.dgv_numbers_if_inventory.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dgv_numbers_if_inventory_UserDeletingRow);
             // 
             // tlp
             // 
