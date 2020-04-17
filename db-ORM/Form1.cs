@@ -16,6 +16,7 @@ namespace db_ORM
         {
             InitializeComponent();
             database_funcs.InitialiseDGVBranches(dgv_branch);
+            database_funcs.InitializeDGVNumbers(dgv_numbers_if_inventory, dgv_branch);
         }
 
     }
