@@ -19,7 +19,7 @@ namespace db_ORM
                 Name = "branch_id",
                 Visible = false
             });
-            dgv_branch.Columns.Add("branch_name", "Адрес филиала");
+            dgv_branch.Columns.Add("branch_address", "Адрес филиала");
             dgv_branch.Columns.Add("branch_phone", "Телефон ресепшена");
             dgv_branch.Columns.Add("branch_area", "Площадь помещения");
             dgv_branch.Columns.Add("branch_working_hours", "Часы работы");
@@ -37,7 +37,7 @@ namespace db_ORM
             }
         }
 
-        private static DataTable GetInventoryNames()
+        public static DataTable GetInventoryNames()
         {
             using (var db_context = new opendata_context())
             {
@@ -53,7 +53,7 @@ namespace db_ORM
             }
         }
 
-        private static DataTable GetBranchAddresses()
+        public static DataTable GetBranchAddresses()
         {
             using (var db_context = new opendata_context())
             {
