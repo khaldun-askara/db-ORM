@@ -83,5 +83,20 @@ namespace db_ORM
                 ((DataGridViewComboBoxColumn)dgv_numbers_if_inventory.Columns["branch_id"]).DataSource = database_funcs.GetBranchAddresses();
             }
         }
+
+        private void dgv_branch_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
+        {
+            var cur_branch_id = (int?)e.Row.Cells["branch_id"].Value;
+            if (!cur_branch_id.HasValue)
+                return;
+            using (var db_context = new opendata_context())
+            {
+                var curr_branch = (branch)dgv_branch.Rows[e.Row.Index].Tag;
+                db_context.branches.Attach(curr_branch);
+                db_context.branches.Remove(curr_branch);
+                db_context.SaveChanges();
+                database_funcs.InitializeDGVNumbers(dgv_numbers_if_inventory, dgv_branch);
+            }
+        }
     }
 }
