@@ -10,11 +10,13 @@ using System.Windows.Forms;
 
 namespace db_ORM
 {
-    public partial class Form1 : Form
+    public partial class mainform : Form
     {
-        public Form1()
+        public mainform()
         {
             InitializeComponent();
+            database_funcs.InitialiseDGVBranches(dgv_branch);
         }
+
     }
 }
