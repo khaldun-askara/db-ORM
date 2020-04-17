@@ -98,5 +98,69 @@ namespace db_ORM
                 database_funcs.InitializeDGVNumbers(dgv_numbers_if_inventory, dgv_branch);
             }
         }
+
+        private void dgv_numbers_if_inventory_RowValidating(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            int temp = 0;
+            if (!dgv_numbers_if_inventory.IsCurrentRowDirty)
+                return;
+            var row = dgv_numbers_if_inventory.Rows[e.RowIndex];
+            row.ErrorText = "";
+
+            var comboboxCells = new[]
+            {
+                row.Cells["branch_id"],
+                row.Cells["inventory_id"]
+            };
+
+            foreach (var cell in comboboxCells)
+            {
+                cell.ErrorText = "";
+                if (cell.Value == null)
+                {
+                    cell.ErrorText = "Выберите значение!";
+                    e.Cancel = true;
+                }
+            }
+            row.Cells["number"].ErrorText = "";
+            if (row.Cells["number"] == null
+                || !Int32.TryParse(Convert.ToString(row.Cells["number"].Value), out temp))
+            {
+                row.Cells["number"].ErrorText = "Введите число";
+                e.Cancel = true;
+            }
+
+            if (!e.Cancel)
+            {
+                if (row.Tag == null)
+                {
+                    using (var db_context = new opendata_context())
+                    {
+                        var cur_number = new number_of_inventory_in_branch()
+                        {
+                            branch_id = Convert.ToInt32(row.Cells["branch_id"].Value),
+                            inventory_id = Convert.ToInt32(row.Cells["inventory_id"].Value),
+                            number = Convert.ToInt32(row.Cells["number"].Value)
+                        };
+                        db_context.number_of_inventory_in_branch.Add(cur_number);
+                        db_context.SaveChanges();
+                        row.Tag = cur_number;
+                    }
+                }
+                else
+                {
+                    var cur_number = (number_of_inventory_in_branch)row.Tag;
+                    using (var db_context = new opendata_context())
+                    {
+                        db_context.number_of_inventory_in_branch.Attach(cur_number);
+                        cur_number.branch_id = Convert.ToInt32(row.Cells["branch_id"].Value);
+                        cur_number.inventory_id = Convert.ToInt32(row.Cells["inventory_id"].Value);
+                        cur_number.number = Convert.ToInt32(row.Cells["number"].Value);
+                        db_context.SaveChanges();
+                        row.Tag = cur_number;
+                    }
+                }
+            }
+        }
     }
 }
