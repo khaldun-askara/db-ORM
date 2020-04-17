@@ -49,6 +49,7 @@
             this.dgv_branch.TabIndex = 0;
             this.dgv_branch.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgv_branch_RowValidating);
             this.dgv_branch.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dgv_branch_UserDeletingRow);
+            this.dgv_branch.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.dgv_branch_PreviewKeyDown);
             // 
             // dgv_numbers_if_inventory
             // 
@@ -63,6 +64,7 @@
             this.dgv_numbers_if_inventory.TabIndex = 1;
             this.dgv_numbers_if_inventory.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgv_numbers_if_inventory_RowValidating);
             this.dgv_numbers_if_inventory.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dgv_numbers_if_inventory_UserDeletingRow);
+            this.dgv_numbers_if_inventory.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.dgv_numbers_if_inventory_PreviewKeyDown);
             // 
             // tlp
             // 

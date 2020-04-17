@@ -175,5 +175,52 @@ namespace db_ORM
                 db_context.SaveChanges();
             }
         }
+
+        private void dgv_branch_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape && dgv_branch.IsCurrentRowDirty)
+            {
+                dgv_branch.CancelEdit();
+                if (dgv_branch.CurrentRow.Cells["branch_id"].Value != null)
+                {
+                    dgv_branch.CurrentRow.ErrorText = "";
+                    dgv_branch.CurrentRow.Cells["branch_address"].Value = ((branch)dgv_branch.CurrentRow.Tag).branch_address;
+                    dgv_branch.CurrentRow.Cells["branch_phone"].Value = ((branch)dgv_branch.CurrentRow.Tag).branch_phone;
+                    dgv_branch.CurrentRow.Cells["branch_area"].Value = ((branch)dgv_branch.CurrentRow.Tag).branch_area;
+                    dgv_branch.CurrentRow.Cells["branch_working_hours"].Value = ((branch)dgv_branch.CurrentRow.Tag).branch_working_hours;
+                    foreach (DataGridViewCell cell in dgv_branch.CurrentRow.Cells)
+                    {
+                        cell.ErrorText = "";
+                    }
+                }
+                else
+                {
+                    dgv_branch.Rows.Remove(dgv_branch.CurrentRow);
+                }
+            }
+        }
+
+        private void dgv_numbers_if_inventory_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape && dgv_numbers_if_inventory.IsCurrentRowDirty)
+            {
+                dgv_numbers_if_inventory.CancelEdit();
+                if (dgv_numbers_if_inventory.CurrentRow.Tag != null)
+                {
+                    dgv_numbers_if_inventory.CurrentRow.ErrorText = "";
+                    dgv_numbers_if_inventory.CurrentRow.Cells["branch_id"].Value = ((number_of_inventory_in_branch)dgv_numbers_if_inventory.CurrentRow.Tag).branch_id;
+                    dgv_numbers_if_inventory.CurrentRow.Cells["inventory_id"].Value = ((number_of_inventory_in_branch)dgv_numbers_if_inventory.CurrentRow.Tag).inventory_id;
+                    dgv_numbers_if_inventory.CurrentRow.Cells["number"].Value = ((number_of_inventory_in_branch)dgv_numbers_if_inventory.CurrentRow.Tag).number;
+                    foreach (DataGridViewCell cell in dgv_numbers_if_inventory.CurrentRow.Cells)
+                    {
+                        cell.ErrorText = "";
+                    }
+                }
+                else
+                {
+                    dgv_numbers_if_inventory.Rows.Remove(dgv_numbers_if_inventory.CurrentRow);
+                }
+            }
+        }
     }
 }
