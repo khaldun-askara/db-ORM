@@ -69,6 +69,19 @@ namespace db_ORM
             }
         }
 
+        public static bool FindBranchName(string name)
+        {
+            if (name == "" || name == null)
+                return false;
+            using (var db_context = new opendata_context())
+            {
+                foreach (var branch in db_context.branches)
+                    if (branch.branch_address == name)
+                        return true;
+            }
+            return false;
+        }
+
         public static void InitializeDGVNumbers(DataGridView dgv_numbers_if_inventory, DataGridView dgv_branches)
         {
             dgv_numbers_if_inventory.Rows.Clear();
@@ -98,6 +111,8 @@ namespace db_ORM
                     var row_idx = dgv_numbers_if_inventory.Rows.Add(number_of_inventory_in_branch.branch_id,
                                                                     number_of_inventory_in_branch.inventory_id,
                                                                     number_of_inventory_in_branch.number);
+                    dgv_numbers_if_inventory.Rows[row_idx].Cells["branch_id"].ReadOnly = true;
+                    dgv_numbers_if_inventory.Rows[row_idx].Cells["inventory_id"].ReadOnly = true;
                     dgv_numbers_if_inventory.Rows[row_idx].Tag = number_of_inventory_in_branch;
                 }
             }

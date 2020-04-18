@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,6 +18,14 @@ namespace db_ORM
             InitializeComponent();
             database_funcs.InitialiseDGVBranches(dgv_branch);
             database_funcs.InitializeDGVNumbers(dgv_numbers_if_inventory, dgv_branch);
+        }
+        private static string DelSpaces(string str)
+        {
+            if (str == "" || str == null)
+                return "";
+            Regex spaces1 = new Regex("(?<![^ \f\n\r\t\v])[ \f\n\r\t\v]{1,}(?=[^ \f\n\r\t\v])");
+            Regex spaces2 = new Regex("(?<=[^ \f\n\r\t\v])[ \f\n\r\t\v]{1,}(?![^ \f\n\r\t\v])");
+            return spaces2.Replace(spaces1.Replace(str, ""), "");
         }
 
         private void dgv_branch_RowValidating(object sender, DataGridViewCellCancelEventArgs e)
@@ -33,12 +42,20 @@ namespace db_ORM
             foreach (var cell in cellsWithPotentialErrors)
             {
                 cell.ErrorText = "";
+                cell.Value = DelSpaces((string)cell.Value);
                 if (string.IsNullOrWhiteSpace((string)cell.Value))
                 {
                     cell.ErrorText = "Значение не может быть пустым";
                     e.Cancel = true;
                 }
             }
+            if (row.Tag != null && (string)row.Cells["branch_address"].Value != ((branch)row.Tag).branch_address && database_funcs.FindBranchName((string)row.Cells["branch_address"].Value)
+                || row.Tag == null && database_funcs.FindBranchName((string)row.Cells["branch_address"].Value))
+            {
+                row.Cells["branch_address"].ErrorText = "Филиал по данному адресу уже существует.";
+                e.Cancel = true;
+            }
+
             row.Cells["branch_area"].ErrorText = "";
             if (row.Cells["branch_area"] == null
                 || !Int32.TryParse(Convert.ToString(row.Cells["branch_area"].Value), out temp))
@@ -53,15 +70,23 @@ namespace db_ORM
                 if (branch_id.HasValue)
                 {
                     var cur_branch = (branch)row.Tag;
-                    using (var db_contex = new opendata_context())
+                    using (var db_context = new opendata_context())
                     {
-                        db_contex.branches.Attach(cur_branch);
+                        db_context.branches.Attach(cur_branch);
                         cur_branch.branch_address = (string)row.Cells["branch_address"].Value;
                         cur_branch.branch_area = Convert.ToInt32(row.Cells["branch_area"].Value);
                         cur_branch.branch_phone = (string)row.Cells["branch_phone"].Value;
                         cur_branch.branch_working_hours = (string)row.Cells["branch_working_hours"].Value;
-                        db_contex.SaveChanges();
-                        row.Tag = cur_branch;
+                        try
+                        {
+                            db_context.SaveChanges();
+                            row.Tag = cur_branch;
+                        }
+                        catch (Exception except)
+                        {
+                            row.ErrorText = "Что-то пошло не так! " + except.Message;
+                            e.Cancel = true;
+                        }
                     }
                 }
                 else
@@ -76,8 +101,16 @@ namespace db_ORM
                             branch_working_hours = (string)row.Cells["branch_working_hours"].Value
                         };
                         db_context.branches.Add(cur_branch);
-                        db_context.SaveChanges();
-                        row.Tag = cur_branch;
+                        try
+                        {
+                            db_context.SaveChanges();
+                            row.Tag = cur_branch;
+                        }
+                        catch (Exception except)
+                        {
+                            row.ErrorText ="Что-то пошло не так! Возможно, такой адрес филиала уже есть. " + except.Message;
+                            e.Cancel = true;
+                        }
                     }
                 }
                 ((DataGridViewComboBoxColumn)dgv_numbers_if_inventory.Columns["branch_id"]).DataSource = database_funcs.GetBranchAddresses();
@@ -142,9 +175,19 @@ namespace db_ORM
                             inventory_id = Convert.ToInt32(row.Cells["inventory_id"].Value),
                             number = Convert.ToInt32(row.Cells["number"].Value)
                         };
+                        row.Cells["branch_id"].ReadOnly = true;
+                        row.Cells["inventory_id"].ReadOnly = true;
                         db_context.number_of_inventory_in_branch.Add(cur_number);
-                        db_context.SaveChanges();
-                        row.Tag = cur_number;
+                        try { 
+                            db_context.SaveChanges();
+                            row.Tag = cur_number;
+                        }
+                        catch (Exception except)
+                        {
+                            row.ErrorText = "Что-то пошло не так! Возможно, для этого инвентаря в этом филиале уже есть информация. " + except.Message;
+                            e.Cancel = true;
+                            row.Cells["branch_id"].ReadOnly = row.Cells["inventory_id"].ReadOnly = false;
+                        }
                     }
                 }
                 else
@@ -153,8 +196,8 @@ namespace db_ORM
                     using (var db_context = new opendata_context())
                     {
                         db_context.number_of_inventory_in_branch.Attach(cur_number);
-                        cur_number.branch_id = Convert.ToInt32(row.Cells["branch_id"].Value);
-                        cur_number.inventory_id = Convert.ToInt32(row.Cells["inventory_id"].Value);
+                        //cur_number.branch_id = Convert.ToInt32(row.Cells["branch_id"].Value);
+                        //cur_number.inventory_id = Convert.ToInt32(row.Cells["inventory_id"].Value);
                         cur_number.number = Convert.ToInt32(row.Cells["number"].Value);
                         db_context.SaveChanges();
                         row.Tag = cur_number;
